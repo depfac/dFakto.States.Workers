@@ -51,14 +51,22 @@ namespace dFakto.States.Workers.Sql
                 throw new SqlConnectionException(e);
             }
 
-            if (input.QueryFileToken != null)
+            if (input.QueryFileToken != null || input.QueryFileName != null)
             {
-                using(var fileStore = _fileStoreFactory.GetFileStoreFromFileToken(input.QueryFileToken))
-                using(Stream stream = await fileStore.OpenRead(input.QueryFileToken))
-                using(StreamReader reader = new StreamReader(stream))
+                using (var fileStore = _fileStoreFactory.GetFileStoreFromFileToken(input.QueryFileToken))
                 {
-                    input.Query = reader.ReadToEnd();
+                    if (input.QueryFileName != null)
+                    {
+                        input.QueryFileToken = await fileStore.CreateFileToken(input.QueryFileName);
+                    }
+                
+                    using(Stream stream = await fileStore.OpenRead(input.QueryFileToken))
+                    using(StreamReader reader = new StreamReader(stream))
+                    {
+                        input.Query = reader.ReadToEnd();
+                    }
                 }
+                
             }
             
             _logger.LogDebug("Creating command...");

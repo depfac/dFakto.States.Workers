@@ -12,6 +12,8 @@ namespace dFakto.States.Workers
     public class GZipInput
     {
         public string FileToken { get; set; }
+        public string InputFileName { get; set; }
+        public string InputFileStoreName { get; set; }
         public bool DeleteSource { get; set; }
         public bool Compress { get; set; }
         public string OutputFileName { get; set; }
@@ -35,6 +37,11 @@ namespace dFakto.States.Workers
         {
             string outputFileName = input.OutputFileName;
 
+            if (input.InputFileName != null)
+            {
+                using var inputfs = _fileStoreFactory.GetFileStoreFromName(input.InputFileStoreName);
+                input.FileToken = await inputfs.CreateFileToken(input.InputFileName);
+            }
             using var inputFileStore = _fileStoreFactory.GetFileStoreFromFileToken(input.FileToken);
             using var outputFileStore = string.IsNullOrEmpty(input.OutputFileStoreName) ? inputFileStore :  _fileStoreFactory.GetFileStoreFromName(input.OutputFileStoreName);
 
@@ -86,5 +93,6 @@ namespace dFakto.States.Workers
         {
             return $"{outputFileName}.{GzipExtension}";
         }
+        
     }
 }
