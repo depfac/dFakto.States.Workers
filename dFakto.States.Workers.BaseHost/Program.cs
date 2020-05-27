@@ -6,18 +6,19 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.WindowsServices;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Display;
 
 namespace dFakto.States.Workers.TestsHost
 {
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             AppContext.SetSwitch("System.Net.Http.UseSocketsHttpHandler", false);
 
             bool isService = !(Debugger.IsAttached || (args != null && args.Contains("--console")));
-
             if (isService)
             {
                 string pathToExe = Process.GetCurrentProcess().MainModule?.FileName;
@@ -25,35 +26,59 @@ namespace dFakto.States.Workers.TestsHost
                 Directory.SetCurrentDirectory(pathToContentRoot);
             }
 
-            var builder = WebHost.CreateDefaultBuilder()
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddJsonFile("appsettings.json", true);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true);
-                    config.AddEnvironmentVariables();
-
-                    if (args != null)
-                    {
-                        config.AddCommandLine(args.Where(arg => arg != "--console").ToArray());
-                    }
-                })
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    logging.SetMinimumLevel(LogLevel.Debug);
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
-                })
-                .UseSentry()
-                .UseStartup<Startup>();
-                
-            var host = builder.Build();
-            if (isService)
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            IConfigurationBuilder configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true)
+                .AddJsonFile($"appsettings.{environment}.json", true)
+                .AddEnvironmentVariables();
+            if (args != null)
             {
-                host.RunAsService();
+                configBuilder.AddCommandLine(args.Where(arg => arg != "--console").ToArray());
             }
-            else
+            IConfiguration config = configBuilder.Build();
+
+            var logConfig = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .ReadFrom.Configuration(config)
+                .Enrich.FromLogContext();
+            if(!isService)
             {
-                host.Run();
+                logConfig.WriteTo.Console(new MessageTemplateTextFormatter(
+                    "{Timestamp:u} [{Level:u3}]: {SourceContext} - {Message}{NewLine}{Exception}", null));
+            }
+            Log.Logger = logConfig.CreateLogger();
+
+            IWebHostBuilder builder = 
+                WebHost.CreateDefaultBuilder(args)
+                    .UseConfiguration(config)
+                    .UseSerilog()
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseSentry()
+                    .UseStartup<Startup>();
+
+            try
+            {
+                IWebHost host = builder.Build();
+                if (isService)
+                {
+                    host.RunAsService();
+                }
+                else
+                {
+                    host.Run();
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
             }
         }
     }
