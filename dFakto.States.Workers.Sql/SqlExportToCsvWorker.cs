@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using dFakto.States.Workers.Extensions;
 using dFakto.States.Workers.FileStores;
 using dFakto.States.Workers.Sql.Common;
 using dFakto.States.Workers.Sql.Csv;
@@ -22,9 +21,8 @@ namespace dFakto.States.Workers.Sql
         public string OutputFileName { get; set; }
         public char Separator { get; set; } = ';';
         public new SqlQueryType Type { get; set; } = SqlQueryType.Reader;
-        
     }
-    
+
     public class SqlExportToCsvWorker: BaseWorker<SqlExportToCsvInput, string>
     {
         private readonly ILogger<SqlExportToCsvWorker> _logger;
@@ -66,6 +64,7 @@ namespace dFakto.States.Workers.Sql
             BaseDatabase database = GetDataBase(input.ConnectionName, true);
             return database.CreateConnection();
         }
+
         private async Task<DbDataReader> ExecuteQuery(SqlExportToCsvInput input, DbConnection connection, CancellationToken token)
         {
             SqlQuery query = await RetrieveQuery(input);
@@ -74,42 +73,15 @@ namespace dFakto.States.Workers.Sql
             var reader = await command.ExecuteReaderAsync(token);
             return reader;
         }
+
         private void WriteToCsv(DbDataReader reader, CsvStreamWriter writer)
         {
             var columnNames = GetColumnNames(reader);
             writer.WriteLine(columnNames);
             while (reader.Read())
             {
-                string[] line = GetLineValues(reader);
-                writer.WriteLine(line);
+                writer.WriteLine(reader.LineToStringArray());
             }
-        }
-        
-        private string[] GetLineValues(DbDataReader reader)
-        {
-            string[] toReturn = new string[reader.FieldCount];
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                if (reader.IsDBNull(i))
-                {
-                    toReturn[i] = null;
-                    continue;
-                }
-                var val = reader.GetValue(i);
-                switch (val)
-                {
-                    case decimal v:
-                        toReturn[i] = v.ToString(CultureInfo.InvariantCulture);
-                        break;
-                    case DateTime v:
-                        toReturn[i] = v.ToString("O");
-                        break;
-                    default:
-                        toReturn[i] = val.ToString();
-                        break;
-                }
-            }
-            return toReturn;
         }
 
         public string[] GetColumnNames(DbDataReader reader)
