@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <IsPackable>false</IsPackable>
+        <PackageId>dFakto.States.Workers.BaseHost</PackageId>
+        <Authors>dFakto.States.Workers.BaseHost</Authors>
+        <Product>dFakto.States.Workers.BaseHost</Product>
+        <AssemblyName>dFakto.States.Workers.BaseHost</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

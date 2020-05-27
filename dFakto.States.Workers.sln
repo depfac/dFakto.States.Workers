@@ -1,12 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dFakto.States.Workers", "dFakto.States.Workers\dFakto.States.Workers.csproj", "{12429588-F4B8-4D56-954D-A586DCA08963}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dFakto.States.Workers", "dFakto.States.Workers\dFakto.States.Workers.csproj", "{12429588-F4B8-4D56-954D-A586DCA08963}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dFakto.States.Workers.Sql", "dFakto.States.Workers.Sql\dFakto.States.Workers.Sql.csproj", "{32B94B61-9587-4A3D-A6A9-3990F6606D03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dFakto.States.Workers.Sql", "dFakto.States.Workers.Sql\dFakto.States.Workers.Sql.csproj", "{32B94B61-9587-4A3D-A6A9-3990F6606D03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dFakto.States.Workers.Tests", "dFakto.States.Workers.Tests\dFakto.States.Workers.Tests.csproj", "{A5256C96-A238-4994-9251-60662AE4ADAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dFakto.States.Workers.Tests", "dFakto.States.Workers.Tests\dFakto.States.Workers.Tests.csproj", "{A5256C96-A238-4994-9251-60662AE4ADAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dFakto.States.Workers.TestsHost", "dFakto.States.Workers.TestsHost\dFakto.States.Workers.TestsHost.csproj", "{C310B64D-3760-4B03-B6C5-23F1B4B5ED6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dFakto.States.Workers.BaseHost", "dFakto.States.Workers.BaseHost\dFakto.States.Workers.BaseHost.csproj", "{C310B64D-3760-4B03-B6C5-23F1B4B5ED6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +33,11 @@ Global
 		{C310B64D-3760-4B03-B6C5-23F1B4B5ED6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C310B64D-3760-4B03-B6C5-23F1B4B5ED6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C310B64D-3760-4B03-B6C5-23F1B4B5ED6C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAE58F05-6842-4788-A71B-7299A1CB09A7}
 	EndGlobalSection
 EndGlobal
